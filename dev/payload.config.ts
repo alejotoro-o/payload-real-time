@@ -1,4 +1,4 @@
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
@@ -9,67 +9,65 @@ import { fileURLToPath } from 'url'
 
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { seed } from './seed.js'
+import { Messages } from 'collections/messages.js'
+import { Notifications } from 'collections/notifications.js'
+import { Message } from 'payload-types.js'
+import { Users } from 'collections/users.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 if (!process.env.ROOT_DIR) {
-  process.env.ROOT_DIR = dirname
+    process.env.ROOT_DIR = dirname
 }
 
 const buildConfigWithMemoryDB = async () => {
-  if (process.env.NODE_ENV === 'test') {
-    const memoryDB = await MongoMemoryReplSet.create({
-      replSet: {
-        count: 3,
-        dbName: 'payloadmemory',
-      },
+    if (process.env.NODE_ENV === 'test') {
+        const memoryDB = await MongoMemoryReplSet.create({
+            replSet: {
+                count: 3,
+                dbName: 'payloadmemory',
+            },
+        })
+
+        process.env.DATABASE_URI = `${memoryDB.getUri()}&retryWrites=true`
+    }
+
+    return buildConfig({
+        admin: {
+            user: Users.slug,
+            importMap: {
+                baseDir: path.resolve(dirname),
+            },
+        },
+        collections: [
+            Messages,
+            Notifications,
+            Users
+        ],
+        db: sqliteAdapter({
+            client: {
+                url: process.env.DATABASE_URI || ''
+            }
+        }),
+        editor: lexicalEditor(),
+        email: testEmailAdapter,
+        onInit: async (payload) => {
+            await seed(payload)
+        },
+        plugins: [
+            payloadRealTime({
+                collections: {
+                    messages: { room: (doc) => `user:${(doc as Message).user}`, }
+                },
+            }),
+        ],
+        secret: process.env.PAYLOAD_SECRET || 'test-secret_key',
+        sharp,
+        typescript: {
+            outputFile: path.resolve(dirname, 'payload-types.ts'),
+        },
     })
-
-    process.env.DATABASE_URI = `${memoryDB.getUri()}&retryWrites=true`
-  }
-
-  return buildConfig({
-    admin: {
-      importMap: {
-        baseDir: path.resolve(dirname),
-      },
-    },
-    collections: [
-      {
-        slug: 'posts',
-        fields: [],
-      },
-      {
-        slug: 'media',
-        fields: [],
-        upload: {
-          staticDir: path.resolve(dirname, 'media'),
-        },
-      },
-    ],
-    db: mongooseAdapter({
-      ensureIndexes: true,
-      url: process.env.DATABASE_URI || '',
-    }),
-    editor: lexicalEditor(),
-    email: testEmailAdapter,
-    onInit: async (payload) => {
-      await seed(payload)
-    },
-    plugins: [
-      payloadRealTime({
-        collections: {
-          posts: true,
-        },
-      }),
-    ],
-    secret: process.env.PAYLOAD_SECRET || 'test-secret_key',
-    sharp,
-    typescript: {
-      outputFile: path.resolve(dirname, 'payload-types.ts'),
-    },
-  })
 }
 
 export default buildConfigWithMemoryDB()
