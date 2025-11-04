@@ -1,12 +1,18 @@
 import { CollectionConfig } from "payload";
 
 export const Notifications: CollectionConfig = {
-    slug: 'Notifications',
+    slug: 'notifications',
     fields: [
         {
             name: 'message',
+            type: 'text',
+            required: true,
+        },
+        {
+            name: 'user',
             type: 'relationship',
-            relationTo: 'messages'
+            relationTo: 'users',
+            required: true,
         }
     ]
 }

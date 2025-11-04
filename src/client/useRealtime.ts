@@ -9,7 +9,6 @@ export const useRealtime = (userId: string, token?: string) => {
     useEffect(() => {
         const client = new PayloadRealtimeClient({ token })
         client.identify(userId)
-        client.join(`user:${userId}`)
         clientRef.current = client
         setClient(client)
 

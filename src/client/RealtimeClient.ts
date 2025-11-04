@@ -30,18 +30,18 @@ export class PayloadRealtimeClient {
     }
 
     // Subscribe to collection events
-    onCollection(slug: string, callback: (payload: any) => void) {
+    onCollection(slug: string, callback: (data: any) => void) {
         this.socket.on(`realtime:${slug}`, callback)
     }
 
-    // Subscribe to chat messages
-    onChatMessage(callback: (data: any) => void) {
-        this.socket.on('chat-message', callback)
+    // Subscribe to any custom event
+    on(event: string, callback: (data: any) => void) {
+        this.socket.on(event, callback)
     }
 
-    // Send a chat message
-    sendChatMessage(roomId: string, content: string) {
-        this.socket.emit('chat-message', { roomId, content })
+    // Emit any custom event
+    emit(event: string, data: any) {
+        this.socket.emit(event, data)
     }
 
     // Disconnect

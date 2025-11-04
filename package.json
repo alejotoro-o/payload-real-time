@@ -1,8 +1,23 @@
 {
-  "name": "payload-real-time",
+  "name": "@alejotoro-o/payload-real-time",
   "version": "1.0.0",
-  "description": "A blank template to get started with Payload 3.0",
+  "description": "This plugin provides an implementation of websockets to enable real-time events in Payload CMS collections.",
+  "keywords": [
+    "payload",
+    "cms",
+    "real-time",
+    "plugin"
+  ],
+  "homepage": "https://github.com/alejotoro-o/payload-real-time#readme",
+  "bugs": {
+    "url": "https://github.com/alejotoro-o/payload-real-time/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alejotoro-o/payload-real-time.git"
+  },
   "license": "MIT",
+  "author": "Alejandro Toro Ossaba",
   "type": "module",
   "exports": {
     ".": {
@@ -14,11 +29,6 @@
       "import": "./src/exports/client.ts",
       "types": "./src/exports/client.ts",
       "default": "./src/exports/client.ts"
-    },
-    "./rsc": {
-      "import": "./src/exports/rsc.ts",
-      "types": "./src/exports/rsc.ts",
-      "default": "./src/exports/rsc.ts"
     }
   },
   "main": "./src/index.ts",
@@ -44,6 +54,10 @@
     "test": "pnpm test:int && pnpm test:e2e",
     "test:e2e": "playwright test",
     "test:int": "vitest"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -98,11 +112,6 @@
         "import": "./dist/exports/client.js",
         "types": "./dist/exports/client.d.ts",
         "default": "./dist/exports/client.js"
-      },
-      "./rsc": {
-        "import": "./dist/exports/rsc.js",
-        "types": "./dist/exports/rsc.d.ts",
-        "default": "./dist/exports/rsc.js"
       }
     },
     "main": "./dist/index.js",
@@ -115,9 +124,5 @@
       "unrs-resolver"
     ]
   },
-  "registry": "https://registry.npmjs.org/",
-  "dependencies": {
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1"
-  }
+  "registry": "https://registry.npmjs.org/"
 }

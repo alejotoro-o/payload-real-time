@@ -21,10 +21,9 @@ export const startSocketServer = (payload: Payload, serverOptions?: ServerOption
     io.on('connection', (socket) => {
         console.log(`New connection: ${socket.id}`)
 
-        // Identify user (optional)
+        // Identify user
         socket.on('identify', (userId: string) => {
             onlineUsers.set(userId, socket.id)
-            socket.join(`user:${userId}`)
             console.log(`${userId} is online`)
         })
 
@@ -40,9 +39,12 @@ export const startSocketServer = (payload: Payload, serverOptions?: ServerOption
             console.log(`Left room: ${roomId}`)
         })
 
-        // Handle chat messages
-        socket.on('chat-message', (data) => {
-            io?.to(data.roomId).emit('chat-message', data)
+        // Handle custom events
+        socket.onAny((event, data) => {
+            const { roomId, ...content } = data
+            if (typeof roomId !== 'string') return
+            io?.to(roomId).emit(event, content)
+            console.log(`Relayed ${event} to ${roomId}`)
         })
 
         // Disconnect cleanup

@@ -68,7 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     messages: Message;
-    Notifications: Notification;
+    notifications: Notification;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -77,7 +77,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     messages: MessagesSelect<false> | MessagesSelect<true>;
-    Notifications: NotificationsSelect<false> | NotificationsSelect<true>;
+    notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -132,6 +132,7 @@ export interface Message {
  */
 export interface User {
   id: number;
+  name?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -145,11 +146,12 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Notifications".
+ * via the `definition` "notifications".
  */
 export interface Notification {
   id: number;
-  message?: (number | null) | Message;
+  message: string;
+  user: number | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -165,7 +167,7 @@ export interface PayloadLockedDocument {
         value: number | Message;
       } | null)
     | ({
-        relationTo: 'Notifications';
+        relationTo: 'notifications';
         value: number | Notification;
       } | null)
     | ({
@@ -226,10 +228,11 @@ export interface MessagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Notifications_select".
+ * via the `definition` "notifications_select".
  */
 export interface NotificationsSelect<T extends boolean = true> {
   message?: T;
+  user?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -238,6 +241,7 @@ export interface NotificationsSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

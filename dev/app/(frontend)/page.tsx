@@ -1,7 +1,7 @@
 'use client'
 
 import { User } from "payload-types.js"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRealtime } from "../../../src/client/useRealtime.js"
 
 export default function Page() {
@@ -26,8 +26,9 @@ export default function Page() {
     // Websockets
     useEffect(() => {
         if (!user || !realtime) return
-        realtime.onCollection('messages', (data) => {
-            console.log(`New message: ${data.data.message}`)
+        realtime.join(`user:${user.id}`)
+        realtime.onCollection('notifications', (data) => {
+            console.log(data.data)
             setMessage(data.data.message)
         })
     }, [user, realtime])
