@@ -151,7 +151,6 @@ type RealtimeClientOptions = {
 | `on(event: string, callback: (data) => void)` | Subscribes to any custom event. Useful for chat messages, typing indicators, etc. |
 | `emit(event: string, data: any)` | Emits a custom event to the server. The payload should include a `roomId` if it's meant to be scoped. |
 | `disconnect()` | Gracefully disconnects the socket. Useful on logout or component unmount. |
-|
 
 ### Example: Custom Event
 
