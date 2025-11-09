@@ -22,13 +22,13 @@ npm install @alejotoro-o/payload-real-time
 First configure the plugin in ```payload.config.ts```. The plugin accepts a configuration object with the following shape:
 
 ```ts
-type PayloadRealTimeConfig = {
-  collections?: Partial<Record<CollectionSlug, RealTimeCollectionOptions>>
-  serverOptions?: {
-    port?: number
-    cors?: { origin: string }
-  }
-  disabled?: boolean
+export type PayloadRealTimeConfig = {
+    collections?: { [K in CollectionSlug]?: {
+        room: (doc: Extract<DefinedCollections[number], { slug: K }>['fields']) => string | undefined
+        events?: Array<'create' | 'update'>
+    } }
+    serverOptions?: { port?: 3001, cors?: { origin: '*', } }
+    disabled?: boolean
 }
 ```
 
@@ -36,13 +36,6 @@ type PayloadRealTimeConfig = {
 
     - `events`: Limit which operations trigger events. Use `'create'`, `'update'`, or both. If omitted, all operations will emit.
     - `room`: A function that receives the document and returns a room string. This scopes the event to a specific room (e.g. `user:{userId}`).
-
-```ts
-type RealTimeCollectionOptions = {
-  events?: Array<'create' | 'update'>
-  room?: (doc: unknown) => string | undefined
-}
-```
 
 - `serverOptions`: Customize the WebSocket server:
 
@@ -59,16 +52,16 @@ import payloadRealTime from '@alejotoro-o/payload-real-time'
 export const config = buildConfig({
     // ... Payload config options
     plugins: [
-        // Additional plugins
         payloadRealTime({
-            // Collections to enable real-time events
             collections: {
                 notifications: {
-                    // Room to emit events
-                    room: (doc) => `user:${(doc as Notification).user}`,
-                    // List of allowed events in afterChange hook
+                    room: (doc: Notification) => {
+                        const user = doc.user
+                        const userId = typeof user === 'number' ? user : user?.id
+                        return userId ? `user:${userId}` : undefined
+                    },
                     events: ['create', 'update'],
-                }
+                },
             },
         }),
     ],

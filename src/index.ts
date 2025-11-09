@@ -1,30 +1,14 @@
 import type { CollectionSlug, Config } from 'payload'
 import { startSocketServer } from './socketServer.js'
 
-type RealTimeCollectionOptions = {
-    /**
-    * Emit only for these operations: 'create', 'update'
-    * If omitted, all will be emitted
-    */
-    events?: Array<'create' | 'update'>
-
-    /**
-     * Optional room scoping function
-     * Receives the document and returns a room string
-     */
-    room?: (doc: unknown) => string | undefined
-
-}
+type DefinedCollections = NonNullable<Config['collections']>
 
 export type PayloadRealTimeConfig = {
-    /**
-    * List of collections to add a custom field
-    */
-    collections?: Partial<Record<CollectionSlug, RealTimeCollectionOptions>>
-    serverOptions?: {
-        port?: 3001,
-        cors?: { origin: '*', }
-    }
+    collections?: { [K in CollectionSlug]?: {
+        room: (doc: Extract<DefinedCollections[number], { slug: K }>['fields']) => string | undefined
+        events?: Array<'create' | 'update'>
+    } }
+    serverOptions?: { port?: 3001, cors?: { origin: '*', } }
     disabled?: boolean
 }
 
@@ -54,6 +38,7 @@ export const payloadRealTime =
 
                         collection.hooks.afterChange.push(
                             async ({ doc, req, operation }) => {
+
                                 const io = (req.payload as any).io
                                 if (!io) return
 

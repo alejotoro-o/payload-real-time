@@ -10,8 +10,9 @@ import { fileURLToPath } from 'url'
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { seed } from './seed.js'
 import { Notifications } from 'collections/notifications.js'
-import { Notification } from 'payload-types.js'
+import { Message, Notification } from 'payload-types.js'
 import { Users } from 'collections/users.js'
+import { Messages } from 'collections/messages.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -40,6 +41,7 @@ const buildConfigWithMemoryDB = async () => {
             },
         },
         collections: [
+            Messages,
             Notifications,
             Users
         ],
@@ -57,9 +59,13 @@ const buildConfigWithMemoryDB = async () => {
             payloadRealTime({
                 collections: {
                     notifications: {
-                        room: (doc) => `user:${(doc as Notification).user}`,
+                        room: (doc: Notification) => {
+                            const user = doc.user
+                            const userId = typeof user === 'number' ? user : user?.id
+                            return userId ? `user:${userId}` : undefined
+                        },
                         events: ['create', 'update'],
-                    }
+                    },
                 },
             }),
         ],
