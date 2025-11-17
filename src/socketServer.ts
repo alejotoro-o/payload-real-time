@@ -3,7 +3,10 @@ import type { Payload } from 'payload'
 
 type ServerOptions = {
     port?: number,
-    cors?: { origin: string },
+    cors?: {
+        origin: string | string[],
+        methods: string | string[],
+    }
 }
 
 let io: Server | null = null

@@ -6,9 +6,11 @@ This plugin provides an implementation of websockets to enable real-time events 
 
 Install the package running:
 
-```
+```sh
 npm install @alejotoro-o/payload-real-time
 ```
+
+**NOTE:** On some implementation you can get the error ```[TypeError: bufferUtil.unmask is not a function]```, in that case you need to install the ```bufferutil``` package with ```        npm install bufferutil```.
 
 ## What This Plugin Does
 
@@ -29,7 +31,10 @@ export type PayloadRealTimeConfig = {
     } }
     serverOptions?: {
         port?: number,
-        cors?: { origin: string, }
+        cors?: {
+            origin: string | string[],
+            methods: string | string[],
+        }
     }
     requireAuth?: boolean,
     disabled?: boolean,

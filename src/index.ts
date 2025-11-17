@@ -10,7 +10,10 @@ export type PayloadRealTimeConfig = {
     } }
     serverOptions?: {
         port?: number,
-        cors?: { origin: string, }
+        cors?: {
+            origin: string | string[],
+            methods: string | string[],
+        }
     }
     requireAuth?: boolean,
     disabled?: boolean,
