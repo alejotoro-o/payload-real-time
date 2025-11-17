@@ -8,16 +8,35 @@ export type PayloadRealTimeConfig = {
         room: (doc: Extract<DefinedCollections[number], { slug: K }>['fields']) => string | undefined
         events?: Array<'create' | 'update'>
     } }
-    serverOptions?: { port?: 3001, cors?: { origin: '*', } }
-    disabled?: boolean
+    serverOptions?: {
+        port?: number,
+        cors?: { origin: string, }
+    }
+    requireAuth?: boolean,
+    disabled?: boolean,
 }
 
+/**
+ * Payload Realtime Plugin
+ * Enables real-time event broadcasting via Socket.IO for configured collections.
+ *
+ * @param pluginOptions - Configuration object for the realtime plugin.
+ * Includes:
+ * - `collections`: Per-collection room resolver and event triggers.
+ * - `serverOptions`: Port and CORS settings for the WebSocket server.
+ * - `requireAuth`: Whether to enforce JWT authentication for connections.
+ * - `disabled`: Whether to disable the plugin entirely.
+ *
+ * @returns A Payload config enhancer that wires up realtime hooks and starts the WebSocket server.
+ */
 export const payloadRealTime =
     (pluginOptions: PayloadRealTimeConfig) =>
         (config: Config): Config => {
             if (!config.collections) {
                 config.collections = []
             }
+
+            pluginOptions.requireAuth = pluginOptions.requireAuth ?? false
 
             if (pluginOptions.collections) {
                 for (const collectionSlug in pluginOptions.collections) {
@@ -88,7 +107,7 @@ export const payloadRealTime =
                     await incomingOnInit(payload)
                 }
 
-                startSocketServer(payload, pluginOptions.serverOptions)
+                startSocketServer(payload, pluginOptions.serverOptions, pluginOptions.requireAuth)
 
             }
 

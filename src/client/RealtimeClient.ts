@@ -5,10 +5,27 @@ export type RealtimeClientOptions = {
     token?: string // optional JWT
 }
 
+/**
+ * PayloadRealtimeClient
+ * 
+ * A lightweight Socket.IO wrapper for interacting with the Payload Realtime plugin.
+ * Enables presence tracking, room-based messaging, and collection-level subscriptions.
+ * 
+ * @example
+ * ```ts
+ * const client = new PayloadRealtimeClient({ token: 'your-jwt' })
+ * client.identify(user.id)
+ * client.join(`user:${user.id}`)
+ * client.onCollection('posts', (data) => console.log('Post updated:', data))
+ * ```
+ * 
+ * @param url - WebSocket server URL. Defaults to 'ws://localhost:3001'.
+ * @param token - Optional JWT for authenticating the socket connection.
+ */
 export class PayloadRealtimeClient {
     private socket: Socket
 
-    constructor({ url = 'http://localhost:3001', token }: RealtimeClientOptions = {}) {
+    constructor({ url = 'ws://localhost:3001', token }: RealtimeClientOptions = {}) {
         this.socket = io(url, {
             auth: token ? { token } : undefined,
         })

@@ -1,6 +1,6 @@
 {
     "name": "@alejotoro-o/payload-real-time",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "description": "This plugin provides an implementation of websockets to enable real-time events in Payload CMS collections.",
     "keywords": [
         "payload",

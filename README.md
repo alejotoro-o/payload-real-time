@@ -27,8 +27,12 @@ export type PayloadRealTimeConfig = {
         room: (doc: Extract<DefinedCollections[number], { slug: K }>['fields']) => string | undefined
         events?: Array<'create' | 'update'>
     } }
-    serverOptions?: { port?: 3001, cors?: { origin: '*', } }
-    disabled?: boolean
+    serverOptions?: {
+        port?: number,
+        cors?: { origin: string, }
+    }
+    requireAuth?: boolean,
+    disabled?: boolean,
 }
 ```
 
@@ -42,6 +46,7 @@ export type PayloadRealTimeConfig = {
     - `port`: Port to run the server on (default is `3001`)
     - `cors`: CORS configuration (e.g. `{ origin: '*' }`)
 
+- `requireAuth`: Set to `true` to enable JWT authentication for socket connections. Default is `false`.
 - `disabled`: Set to `true` to disable the plugin entirely.
 
 Here is an example configuring the plugin to emit events when documents are created or updated in the notifications collection.
@@ -63,6 +68,7 @@ export const config = buildConfig({
                     events: ['create', 'update'],
                 },
             },
+            requireAuth: true
         }),
     ],
 })
@@ -73,29 +79,49 @@ Use the ```useRealtime``` hook to subscribe to events in your frontend:
 ```ts
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRealtime } from '@alejotoro-o/payload-real-time/client'
+import { User } from "payload-types.js"
+import { useEffect, useState } from "react"
+import { useRealtime } from "../../../src/client/useRealtime.js"
 
-export const Component: React.FC = () => {
+export default function Page() {
 
-    const user = getUser() // Replace with your auth logic
-    const realtime = useRealtime(user?.id.toString() ?? '')
-    const [message, setMessage] = useState<string>()
+    const [user, setUser] = useState<User>()
+    const [token, setToken] = useState()
+    const realtime = useRealtime(user?.id.toString() ?? '', token ?? '')
+    const [message, setMessage] = useState()
 
     useEffect(() => {
+        const getUser = async () => {
+            const response = await fetch('http://localhost:3000/api/users/me')
+            if (response.ok) {
+                const user = await response.json()
+                setUser(user.user)
+                setToken(user.token)
+            } else {
+                console.log('Error')
+            }
+        }
+        getUser()
+    }, [])
+
+    // Websockets
+    useEffect(() => {
         if (!user || !realtime) return
-
         realtime.join(`user:${user.id}`)
-
         realtime.onCollection('notifications', (data) => {
-        console.log(data.data)
-        setMessage(data.data.message)
+            console.log(data.data)
+            setMessage(data.data.message)
         })
     }, [user, realtime])
 
     return (
         <div>
-        {message && <p>🔔 {message}</p>}
+            <div>
+                {user?.email}
+            </div>
+            <div>
+                {message}
+            </div>
         </div>
     )
 }
@@ -120,7 +146,7 @@ You can also instantiate the client manually:
 ```ts
 import { PayloadRealtimeClient } from '@alejotoro-o/payload-real-time'
 
-const client = new PayloadRealtimeClient({ token })
+const client = new PayloadRealtimeClient({ url, token })
 ```
 
 #### Constructor Options

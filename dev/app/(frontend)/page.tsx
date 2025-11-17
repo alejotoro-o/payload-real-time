@@ -7,7 +7,8 @@ import { useRealtime } from "../../../src/client/useRealtime.js"
 export default function Page() {
 
     const [user, setUser] = useState<User>()
-    const realtime = useRealtime(user?.id.toString() ?? '')
+    const [token, setToken] = useState()
+    const realtime = useRealtime(user?.id.toString() ?? '', token ?? '')
     const [message, setMessage] = useState()
 
     useEffect(() => {
@@ -16,6 +17,7 @@ export default function Page() {
             if (response.ok) {
                 const user = await response.json()
                 setUser(user.user)
+                setToken(user.token)
             } else {
                 console.log('Error')
             }

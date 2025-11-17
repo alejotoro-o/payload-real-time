@@ -67,6 +67,7 @@ const buildConfigWithMemoryDB = async () => {
                         events: ['create', 'update'],
                     },
                 },
+                requireAuth: true
             }),
         ],
         secret: process.env.PAYLOAD_SECRET || 'test-secret_key',
