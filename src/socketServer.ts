@@ -5,7 +5,7 @@ type ServerOptions = {
     port?: number,
     cors?: {
         origin: string | string[],
-        methods: string | string[],
+        methods?: string | string[],
     }
 }
 
