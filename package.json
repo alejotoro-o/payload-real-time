@@ -1,6 +1,6 @@
 {
     "name": "@alejotoro-o/payload-real-time",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "description": "This plugin provides an implementation of websockets to enable real-time events in Payload CMS collections.",
     "keywords": [
         "payload",
@@ -57,7 +57,8 @@
     },
     "dependencies": {
         "socket.io": "^4.8.1",
-        "socket.io-client": "^4.8.1"
+        "socket.io-client": "^4.8.1",
+        "bufferutil": "^4.0.9"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.2.0",

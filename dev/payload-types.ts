@@ -122,7 +122,7 @@ export interface UserAuthOperations {
 export interface Message {
   id: number;
   message: string;
-  user: number | User;
+  target: number | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -222,7 +222,7 @@ export interface PayloadMigration {
  */
 export interface MessagesSelect<T extends boolean = true> {
   message?: T;
-  user?: T;
+  target?: T;
   updatedAt?: T;
   createdAt?: T;
 }

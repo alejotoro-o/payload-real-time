@@ -26,7 +26,11 @@ First configure the plugin in ```payload.config.ts```. The plugin accepts a conf
 ```ts
 export type PayloadRealTimeConfig = {
     collections?: { [K in CollectionSlug]?: {
-        room: (doc: Extract<DefinedCollections[number], { slug: K }>['fields']) => string | undefined
+        room: (
+            doc: Extract<DefinedCollections[number], { slug: K }>['fields'],
+            operation?: 'create' | 'update',
+            previousDoc?: Extract<DefinedCollections[number], { slug: K }>['fields'],
+        ) => string | undefined,
         events?: Array<'create' | 'update'>
     } }
     serverOptions?: {
@@ -44,7 +48,7 @@ export type PayloadRealTimeConfig = {
 - `collections`: Define which collections should emit real-time events. For each collection, you can specify:
 
     - `events`: Limit which operations trigger events. Use `'create'`, `'update'`, or both. If omitted, all operations will emit.
-    - `room`: A function that receives the document and returns a room string. This scopes the event to a specific room (e.g. `user:{userId}`).
+    - `room`: A function that receives the resulting document, the operation being performed in the collection and the previous document; the function returns a room string. This scopes the event to a specific room (e.g. `user:{userId}`).
 
 - `serverOptions`: Customize the WebSocket server:
 

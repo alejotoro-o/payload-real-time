@@ -5,7 +5,11 @@ type DefinedCollections = NonNullable<Config['collections']>
 
 export type PayloadRealTimeConfig = {
     collections?: { [K in CollectionSlug]?: {
-        room: (doc: Extract<DefinedCollections[number], { slug: K }>['fields']) => string | undefined
+        room: (
+            doc: Extract<DefinedCollections[number], { slug: K }>['fields'],
+            operation?: 'create' | 'update',
+            previousDoc?: Extract<DefinedCollections[number], { slug: K }>['fields'],
+        ) => string | undefined,
         events?: Array<'create' | 'update'>
     } }
     serverOptions?: {
@@ -59,7 +63,7 @@ export const payloadRealTime =
                         }
 
                         collection.hooks.afterChange.push(
-                            async ({ doc, req, operation }) => {
+                            async ({ doc, req, operation, previousDoc }) => {
 
                                 const io = (req.payload as any).io
                                 if (!io) return
@@ -71,7 +75,7 @@ export const payloadRealTime =
                                 // Determine room (if any)
                                 let room: string | undefined
                                 try {
-                                    room = typeof options?.room === 'function' ? options.room(doc) : undefined
+                                    room = typeof options?.room === 'function' ? options.room(doc, operation, previousDoc) : undefined
                                 } catch (err) {
                                     console.warn(`Realtime plugin: room function error for ${collectionSlug}`, err)
                                 }
